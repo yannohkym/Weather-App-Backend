@@ -1,39 +1,46 @@
 <?php
 
+// app/Http/Controllers/WeatherController.php
+namespace App\Http\Controllers;
 
-    // app/Http/Controllers/WeatherController.php
-    namespace App\Http\Controllers;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
-    use Illuminate\Http\Request;
-    use Illuminate\Support\Facades\Http;
-    
-    class WeatherController extends Controller
+class WeatherController extends Controller
+{
+    public function getWeather(Request $request)
     {
-        public function getWeather(Request $request)
-        {
-            $apiKey = env('OPENWEATHERMAP_API_KEY');
-            $city = $request->input('city', 'London');
-            $url = "https://api.openweathermap.org/data/2.5/weather?q={$city}&appid={$apiKey}&units=metric";
-    
-            $response = Http::get($url);
-    
-            if ($response->successful()) {
-                return response()->json($response->json());
-            }
-    
-            return response()->json(['error' => 'Unable to fetch weather data'], 500);
+        $apiKey = env('OPENWEATHERMAP_API_KEY');
+        $city = $request->input('city', 'London');
+        $url = "https://api.openweathermap.org/data/2.5/weather?q={$city}&appid={$apiKey}&units=metric";
+
+        // Disable SSL verification here
+        $response = Http::withOptions([
+            'verify' => false,  // Disables SSL verification
+        ])->get($url);
+
+        if ($response->successful()) {
+            return response()->json($response->json());
         }
-        public function getforecast(Request $request)
-        {
-            $apiKey = env('OPENWEATHERMAP_API_KEY');
-            $city = $request->input('city', 'London');
-            $url = "https://api.openweathermap.org/data/2.5/forecast?q={$city}&appid={$apiKey}&units=metric";
-            $response = Http::get($url);
-    
-            if ($response->successful()) {
-                return response()->json($response->json());
-            }
-    
-            return response()->json(['error' => 'Unable to fetch weather data'], 500);
-        }
+
+        return response()->json(['error' => 'Unable to fetch weather data'], 500);
     }
+
+    public function getForecast(Request $request)
+    {
+        $apiKey = env('OPENWEATHERMAP_API_KEY');
+        $city = $request->input('city', 'London');
+        $url = "https://api.openweathermap.org/data/2.5/forecast?q={$city}&appid={$apiKey}&units=metric";
+
+        // Disable SSL verification here
+        $response = Http::withOptions([
+            'verify' => false,  // Disables SSL verification
+        ])->get($url);
+
+        if ($response->successful()) {
+            return response()->json($response->json());
+        }
+
+        return response()->json(['error' => 'Unable to fetch weather data'], 500);
+    }
+}
